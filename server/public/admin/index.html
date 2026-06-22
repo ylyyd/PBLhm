@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开心购物管理后台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f6fa;color:#1e293b;font-size:14px;line-height:1.5}
+/* ===== Sidebar ===== */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:#0f172a;color:#fff;z-index:100;display:flex;flex-direction:column}
+.sidebar .logo{padding:18px 20px 14px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.sidebar .logo svg{width:22px;height:22px;flex-shrink:0}
+.sidebar .logo span{color:#FF5722}
+.sidebar .logo small{font-size:10px;font-weight:400;color:rgba(255,255,255,.35);margin-left:auto}
+.sidebar nav{padding:10px 8px;flex:1;overflow-y:auto}
+.sidebar nav a{display:flex;align-items:center;gap:10px;padding:9px 14px;color:rgba(255,255,255,.5);text-decoration:none;transition:all .15s;font-size:13px;border-radius:8px;margin-bottom:2px}
+.sidebar nav a:hover{color:#fff;background:rgba(255,255,255,.06)}
+.sidebar nav a.active{color:#fff;background:rgba(255,87,34,.15)}
+.sidebar nav a svg{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sidebar nav a.active svg{stroke:#FF5722;stroke-width:2}
+.nav-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.2);padding:12px 14px 4px;text-transform:uppercase;letter-spacing:.5px}
+/* ===== Main ===== */
+.main{margin-left:220px;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:#fff;padding:0 28px;height:54px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eef1f5;position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar h2{font-size:16px;font-weight:600;color:#0f172a}
+.topbar .badge{background:#f1f4f9;color:#64748b;padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;transition:.15s}
+.topbar .badge:hover{background:#FF5722;color:#fff}
+.content{padding:24px 28px;flex:1;max-width:1440px}
+/* ===== Cards ===== */
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card-title{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:14px}
+/* ===== Stats ===== */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px}
+.stat-card{background:#fff;border-radius:10px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.stat-card .num{font-size:26px;font-weight:700;margin-top:4px;letter-spacing:-.5px}
+.stat-card .label{font-size:12px;color:#94a3b8;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.stat-card .num.green{color:#10b981}
+.stat-card .num.orange{color:#f59e0b}
+.stat-card .num.blue{color:#3b82f6}
+.stat-card .num.red{color:#FF5722}
+/* ===== Toolbar ===== */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.toolbar input,.toolbar select{padding:7px 12px;border:1px solid #e2e5ea;border-radius:8px;font-size:13px;outline:none;transition:.15s;background:#fff;color:#1e293b}
+.toolbar input:focus,.toolbar select:focus{border-color:#FF5722;box-shadow:0 0 0 2px rgba(255,87,34,.08)}
+.toolbar input{flex:1;min-width:160px}
+/* ===== Tables ===== */
+table{width:100%;border-collapse:collapse}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid #f1f3f6;font-size:13px;color:#475569}
+th{background:#fafbfc;font-weight:600;color:#64748b;font-size:12px;white-space:nowrap;text-transform:none;letter-spacing:0}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+td img{width:38px;height:38px;border-radius:8px;object-fit:cover}
+.prod-name{font-weight:500;color:#0f172a;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ===== Tags ===== */
+.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:500}
+.tag-blue{background:#eff6ff;color:#2563eb}
+.tag-green{background:#f0fdf4;color:#16a34a}
+.tag-orange{background:#fff7ed;color:#ea580c}
+.tag-gray{background:#f8fafc;color:#64748b}
+.tag-red{background:#fef2f2;color:#dc2626}
+.tag-purple{background:#faf5ff;color:#9333ea}
+/* ===== Buttons ===== */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 15px;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;text-decoration:none}
+.btn-primary{background:#FF5722;color:#fff}
+.btn-primary:hover{background:#e64a19;box-shadow:0 2px 8px rgba(255,87,34,.25)}
+.btn-success{background:#10b981;color:#fff}
+.btn-success:hover{background:#059669;box-shadow:0 2px 8px rgba(16,185,129,.25)}
+.btn-danger{background:#fff;color:#dc2626;border:1px solid #fca5a5}
+.btn-danger:hover{background:#fef2f2;border-color:#dc2626}
+.btn-outline{background:#fff;color:#64748b;border:1px solid #e2e5ea}
+.btn-outline:hover{border-color:#FF5722;color:#FF5722}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px;border-radius:6px}
+/* ===== Modals ===== */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.5);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:14px;width:90%;max-width:680px;max-height:85vh;overflow-y:auto;padding:24px 28px;animation:modalIn .2s ease;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+@keyframes modalIn{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal h3{font-size:16px;font-weight:600;color:#0f172a;margin-bottom:16px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-group label{font-size:12px;color:#64748b;font-weight:500}
+.form-group input,.form-group textarea,.form-group select{padding:8px 12px;border:1px solid #e2e5ea;border-radius:8px;font-size:13px;outline:none;transition:.15s;background:#fff;color:#1e293b}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#FF5722;box-shadow:0 0 0 2px rgba(255,87,34,.08)}
+.form-group textarea{resize:vertical;min-height:60px;font-family:ui-monospace,monospace;font-size:12px;color:#475569}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid #f1f3f6}
+.img-upload{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.img-upload .thumb{width:54px;height:54px;border-radius:8px;object-fit:cover;border:1px solid #eee;position:relative}
+.img-upload .thumb .del{position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:#dc2626;color:#fff;border-radius:50%;font-size:10px;text-align:center;line-height:16px;cursor:pointer}
+.empty{text-align:center;padding:36px 20px;color:#94a3b8;font-size:13px}
+.tabs{display:flex;gap:2px;margin-bottom:16px;border-bottom:1px solid #eef1f5;padding-bottom:0}
+.tabs .tab{padding:9px 16px;cursor:pointer;font-size:13px;color:#94a3b8;border-bottom:2px solid transparent;transition:.15s}
+.tabs .tab:hover{color:#FF5722}
+.tabs .tab.active{color:#FF5722;font-weight:600;border-bottom-color:#FF5722}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.pagination{display:flex;gap:4px;align-items:center;justify-content:center;margin-top:14px}
+.pagination span{padding:5px 11px;border:1px solid #e2e5ea;border-radius:6px;cursor:pointer;font-size:13px;color:#64748b;transition:.15s}
+.pagination span:hover{border-color:#FF5722;color:#FF5722}
+.pagination span.active{background:#FF5722;color:#fff;border-color:#FF5722}
+.search-highlight{background:#fff3e0;padding:0 2px;border-radius:2px}
+/* ===== Categories ===== */
+.cat-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.cat-bar .cat-search{position:relative;flex:1;min-width:150px}
+.cat-bar .cat-search input{width:100%;padding:7px 10px 7px 30px;border:1px solid #e2e5ea;border-radius:8px;font-size:13px;outline:none;transition:.15s;background:#fff;color:#1e293b}
+.cat-bar .cat-search input:focus{border-color:#FF5722;box-shadow:0 0 0 2px rgba(255,87,34,.08)}
+.cat-bar .cat-search svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#cbd5e1;pointer-events:none}
+/* --- Breadcrumb --- */
+.cat-breadcrumb{display:flex;align-items:center;gap:4px;padding:8px 0 12px;font-size:13px;flex-wrap:wrap}
+.crumb-link{color:#FF5722;cursor:pointer;padding:2px 4px;border-radius:4px;transition:background .1s}
+.crumb-link:hover{background:#fff5f0}
+.crumb-sep{color:#cbd5e1;font-size:15px;line-height:1}
+.crumb-active{color:#1e293b;font-weight:600}
+/* --- Table --- */
+.cat-table-wrap{border:1px solid #f1f3f6;border-radius:10px;overflow:hidden;background:#fff}
+.cat-table{width:100%;border-collapse:collapse;font-size:13px}
+.cat-table thead th{background:#fafbfc;padding:8px 14px;text-align:left;font-weight:500;color:#64748b;font-size:12px;border-bottom:1px solid #f1f3f6;white-space:nowrap}
+.cat-table tbody td{padding:8px 14px;border-bottom:1px solid #f8fafc;vertical-align:middle}
+.cat-table tbody tr:last-child td{border-bottom:none}
+.cat-table tbody tr:hover{background:linear-gradient(to right,#fafbfc,transparent)}
+.cat-table tbody tr.sub-row td{padding-left:42px;background:#fcfcfd}
+.cat-table tbody tr.sub-row:hover{background:linear-gradient(to right,#f5f6f8,transparent)}
+.cat-table tbody tr.sub-row:last-child td{border-bottom:1px solid #f1f3f6}
+.cat-table .td-name{display:flex;align-items:center;gap:6px;white-space:nowrap;width:100%}
+.cat-dot{flex-shrink:0;width:6px;height:6px;border-radius:50%;background:#e2e5ea}
+.cat-dot.l0{background:#FF5722}
+.cat-dot.l1{background:#fb923c}
+.cat-dot.l2{background:#fdba74}
+.sub-connector{flex-shrink:0;width:16px;height:1px;border-top:1px solid #e2e5ea;position:relative}
+.sub-connector::before{content:'';position:absolute;left:0;top:-8px;width:1px;height:9px;border-left:1px solid #e2e5ea}
+.cat-name{font-size:13px;color:#1e293b;cursor:pointer;padding:1px 3px;border-radius:3px;overflow:hidden;text-overflow:ellipsis;transition:background .1s;flex-shrink:1;min-width:0}
+.cat-name:hover{background:#fff5f0}
+.cat-child-count{font-size:10px;color:#94a3b8;background:#f1f3f6;padding:1px 6px;border-radius:8px;flex-shrink:0}
+.cat-renaming{font-size:13px;padding:2px 5px;border:1px solid #FF5722;border-radius:4px;outline:none;width:130px;background:#fff}
+.cat-acts{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.cat-acts button{width:22px;height:22px;border:none;border-radius:4px;cursor:pointer;padding:0;font-size:0;display:inline-flex;align-items:center;justify-content:center;transition:.15s}
+.cat-acts .mu{background:transparent;color:#cbd5e1}
+.cat-acts .mu:hover{color:#64748b;background:#f1f3f6}
+.cat-acts .mu svg,.cat-acts .del svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cat-acts .del{background:transparent;color:#e2e5ea}
+.cat-acts .del:hover{color:#dc2626;background:#fef2f2}
+.cat-empty{padding:36px 20px;text-align:center;color:#94a3b8;font-size:13px}
+.cat-back{display:inline-flex;align-items:center;gap:4px;margin-top:10px;padding:6px 14px;font-size:12px;color:#64748b;cursor:pointer;border-radius:8px;transition:.15s}
+.cat-back:hover{color:#FF5722;background:#fff5f0}
+@media(max-width:640px){.cat-bar{flex-direction:column}}
+/* ===== Orders filter ===== */
+.orders-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.orders-filter .filter-btn{padding:5px 14px;border-radius:16px;font-size:12px;border:1px solid #e2e5ea;background:#fff;color:#64748b;cursor:pointer;transition:.15s}
+.orders-filter .filter-btn.active{background:#FF5722;color:#fff;border-color:#FF5722}
+.orders-filter .filter-btn:hover:not(.active){border-color:#FF5722;color:#FF5722}
+.order-products{font-size:12px;color:#64748b;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ===== Responsive ===== */
+@media(max-width:768px){.sidebar{width:56px}.sidebar .logo{padding:14px 12px}.sidebar .logo span,.sidebar .logo small,.sidebar nav a span,.nav-label{display:none}.sidebar nav a{padding:10px;justify-content:center;margin:0}.main{margin-left:56px}.content{padding:16px}.topbar{padding:0 16px}.form-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+/* ===== Toast ===== */
+.toast-container{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{pointer-events:auto;background:#0f172a;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;animation:toastIn .2s ease;max-width:360px;line-height:1.4}
+.toast.success{background:#10b981}
+.toast.error{background:#dc2626}
+.toast.warning{background:#f59e0b;color:#1e293b}
+.toast svg{width:16px;height:16px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@keyframes toastIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="#FF5722" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="#FF5722" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>开心购</span>
+    <small>管理后台</small>
+  </div>
+  <nav id="sideNav">
+    <div class="nav-label">概览</div>
+    <a href="#" class="active" data-tab="dashboard">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      <span>仪表盘</span>
+    </a>
+    <div class="nav-label">管理</div>
+    <a href="#" data-tab="products">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      <span>商品管理</span>
+    </a>
+    <a href="#" data-tab="categories">
+      <svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+      <span>分类管理</span>
+    </a>
+    <a href="#" data-tab="orders">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span>订单管理</span>
+    </a>
+    <a href="#" data-tab="users">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>用户管理</span>
+    </a>
+    <a href="#" data-tab="aftersales">
+      <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      <span>售后管理</span>
+    </a>
+  </nav>
+</aside>
+<div class="main">
+  <div class="topbar">
+    <h2 id="pageTitle">仪表盘</h2>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="loginUser" style="font-size:13px;color:#999;display:none"></span>
+      <span class="badge" id="loginBadge" onclick="showLogin()" style="cursor:pointer">未登录</span>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- ===== Dashboard ===== -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="stats" id="statsCards"></div>
+      <div class="card">
+        <div class="card-title">订单状态分布</div>
+        <div id="orderStatusChart" style="display:flex;gap:16px;flex-wrap:wrap"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">最近订单</div>
+        <div id="recentOrders"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">每日销售额（近30天）</div>
+        <div id="dailySalesChart" style="min-height:140px"></div>
+      </div>
+      <div class="card" style="display:flex;gap:24px;flex-wrap:wrap">
+        <div style="flex:1;min-width:260px">
+          <div class="card-title" style="margin-bottom:10px">分类销售排行</div>
+          <div id="categorySalesRanking"></div>
+        </div>
+        <div style="flex:1;min-width:260px">
+          <div class="card-title" style="margin-bottom:10px">热销商品 Top 10</div>
+          <div id="topProductsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Products ===== -->
+    <div id="tab-products" class="tab-content">
+      <div class="card">
+        <div class="toolbar">
+          <input id="prodSearch" placeholder="搜索商品名称..." oninput="filterProducts()">
+          <select id="prodCategoryFilter" onchange="filterProducts()"><option value="">全部分类</option></select>
+          <select id="prodShopFilter" onchange="filterProducts()"><option value="">全部店铺</option></select>
+          <button class="btn btn-primary" onclick="openProductModal()">+ 添加商品</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th style="width:44px"></th>
+            <th>商品</th>
+            <th style="width:80px">价格</th>
+            <th style="width:100px">分类</th>
+            <th style="width:80px">店铺</th>
+            <th style="width:60px">规格</th>
+            <th style="width:120px">操作</th>
+          </tr></thead>
+          <tbody id="productTable"></tbody>
+        </table>
+        <div class="pagination" id="prodPagination"></div>
+      </div>
+    </div>
+
+    <!-- ===== Categories ===== -->
+    <div id="tab-categories" class="tab-content">
+      <div class="card">
+        <div class="cat-bar">
+          <div class="cat-search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="catSearch" placeholder="搜索分类..." oninput="onCatSearch(this.value)">
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showAddCategory()">+ 添加分类</button>
+        </div>
+        <div id="categoryList"></div>
+      </div>
+    </div>
+
+    <!-- ===== Orders ===== -->
+    <div id="tab-orders" class="tab-content">
+      <div class="card">
+        <div class="toolbar" style="justify-content:space-between">
+          <div class="card-title" style="margin:0">订单管理</div>
+          <input id="orderSearch" placeholder="搜索订单号/用户..." style="width:200px" oninput="filterOrders()">
+        </div>
+        <div class="orders-filter" id="orderFilters">
+          <span class="filter-btn active" data-status="" onclick="setOrderFilter(this)">全部</span>
+          <span class="filter-btn" data-status="待付款" onclick="setOrderFilter(this)">待付款</span>
+          <span class="filter-btn" data-status="待发货" onclick="setOrderFilter(this)">待发货</span>
+          <span class="filter-btn" data-status="配送中" onclick="setOrderFilter(this)">配送中</span>
+          <span class="filter-btn" data-status="已完成" onclick="setOrderFilter(this)">已完成</span>
+          <span class="filter-btn" data-status="已取消" onclick="setOrderFilter(this)">已取消</span>
+          <span class="filter-btn" data-status="退款中" onclick="setOrderFilter(this)">退款中</span>
+        </div>
+        <table>
+          <thead><tr>
+            <th>订单号</th><th>用户</th><th>金额</th><th>商品</th><th>时间</th><th>状态</th><th>操作</th>
+          </tr></thead>
+          <tbody id="orderTable"></tbody>
+        </table>
+        <div class="pagination" id="orderPagination"></div>
+      </div>
+    </div>
+
+    <!-- ===== Users ===== -->
+    <div id="tab-users" class="tab-content">
+      <div class="card">
+        <div class="toolbar" style="justify-content:space-between">
+          <div class="card-title" style="margin:0">用户列表</div>
+          <input id="userSearch" placeholder="搜索用户名/昵称/手机..." style="width:220px" oninput="filterUsers()">
+        </div>
+        <table>
+          <thead><tr>
+            <th style="width:50px">ID</th><th>用户名</th><th>昵称</th><th>手机号</th><th style="width:60px">积分</th><th style="width:70px">会员等级</th><th>注册时间</th><th style="width:60px">管理员</th>
+          </tr></thead>
+          <tbody id="userTable"></tbody>
+        </table>
+        <div class="pagination" id="userPagination"></div>
+      </div>
+    </div>
+
+    <!-- ===== AfterSales ===== -->
+    <div id="tab-aftersales" class="tab-content">
+      <div class="card">
+        <div class="toolbar" style="justify-content:space-between">
+          <div class="card-title" style="margin:0">售后管理</div>
+          <select id="asFilter" onchange="filterAfterSales()" style="padding:7px 12px;border:1px solid #e2e5ea;border-radius:8px;font-size:13px;outline:none;background:#fff;color:#1e293b">
+            <option value="">全部状态</option>
+            <option value="pending">待处理</option>
+            <option value="approved">已通过</option>
+            <option value="rejected">已拒绝</option>
+          </select>
+        </div>
+        <table>
+          <thead><tr>
+            <th style="width:40px">ID</th><th>订单号</th><th>用户</th><th>类型</th><th style="width:80px">退款金额</th><th>申请时间</th><th style="width:60px">状态</th><th style="width:140px">操作</th>
+          </tr></thead>
+          <tbody id="afterSalesTable"></tbody>
+        </table>
+        <div class="pagination" id="asPagination"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal" style="max-width:420px">
+    <h3 id="catModalTitle">添加分类</h3>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+      <div class="form-group"><label>分类名称</label><input id="catNameInput" placeholder="如: 华为"></div>
+      <div class="form-group">
+        <label>上级分类（可选）</label>
+        <select id="catParentSelect"><option value="">顶级分类</option></select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeCatModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveCategory()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal" style="max-width:360px">
+    <h3>管理后台登录</h3>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+      <input id="loginUserInput" placeholder="用户名 (admin)" style="padding:9px 12px;border:1px solid #e2e5ea;border-radius:8px;font-size:14px;outline:none;width:100%">
+      <input id="loginPassInput" type="password" placeholder="密码 (admin123)" style="padding:9px 12px;border:1px solid #e2e5ea;border-radius:8px;font-size:14px;outline:none;width:100%">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="document.getElementById('loginModal').classList.remove('active')">取消</button>
+      <button class="btn btn-primary" onclick="doLogin()">登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <h3 id="modalTitle">添加商品</h3>
+    <div class="form-grid">
+      <div class="form-group full"><label>商品名称</label><input id="f-name" placeholder="请输入商品名称"></div>
+      <div class="form-group"><label>价格 (¥)</label><input id="f-price" type="number" step="0.01" placeholder="0.00"></div>
+      <div class="form-group"><label>分类</label>
+        <select id="f-category"><option value="">选择分类</option></select>
+        <input id="f-category-custom" placeholder="或自定义分类" style="margin-top:4px;display:none">
+      </div>
+      <div class="form-group"><label>店铺</label>
+        <select id="f-shop" onchange=""><option value="0">自营</option></select>
+      </div>
+      <div class="form-group full"><label>主图</label>
+        <div style="display:flex;gap:8px">
+          <input id="f-image" placeholder="图片URL或文件名" style="flex:1">
+          <input type="file" id="f-image-file" accept="image/*" style="display:none" onchange="uploadMain(this)">
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('f-image-file').click()">上传</button>
+        </div>
+        <img id="f-image-preview" style="width:64px;height:64px;border-radius:8px;margin-top:6px;object-fit:cover;display:none;background:#f5f5f5">
+      </div>
+      <div class="form-group full"><label>商品图集</label>
+        <div class="img-upload" id="f-images-preview"></div>
+        <input type="file" id="f-images-file" accept="image/*" multiple style="display:none" onchange="uploadMore(this)">
+        <button class="btn btn-outline btn-xs" onclick="document.getElementById('f-images-file').click()" style="margin-top:4px">+ 添加图片</button>
+      </div>
+      <div class="form-group full"><label>简介</label><textarea id="f-description" placeholder="简短描述"></textarea></div>
+      <div class="form-group full"><label>图文详情 (HTML)</label><textarea id="f-detail" placeholder="<p>详细描述...</p>" style="min-height:100px"></textarea></div>
+      <div class="form-group full"><label>规格配置 (JSON)</label><textarea id="f-specs" placeholder='[{"name":"颜色","values":["黑色","白色"]}]' style="min-height:50px"></textarea></div>
+      <div class="form-group full"><label>SKU配置 (JSON)</label><textarea id="f-skus" placeholder='[{"id":"b-256","specs":{"颜色":"黑色"},"price":6999,"stock":100}]' style="min-height:60px"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeProductModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveProduct()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script>
+function toast(msg, type) {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  if (!type) type = '';
+  el.className = 'toast' + (type ? ' ' + type : '');
+  const icons = {success:'<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',error:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',warning:'<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'};
+  el.innerHTML = (icons[type]||'') + msg;
+  c.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(40px)'; el.style.transition = 'all .2s'; setTimeout(() => el.remove(), 200); }, 3000);
+}
+function confirmDlg(msg, cb) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = '<div class="modal" style="max-width:380px;padding:24px"><h3 style="margin-bottom:12px;font-size:15px">确认操作</h3><p style="color:#64748b;font-size:14px;margin-bottom:20px">' + msg + '</p><div class="form-actions"><button class="btn btn-outline" id="confirmNo">取消</button><button class="btn btn-primary" id="confirmYes">确定</button></div></div>';
+  document.body.appendChild(overlay);
+  overlay.querySelector('#confirmYes').onclick = () => { overlay.remove(); cb(true); };
+  overlay.querySelector('#confirmNo').onclick = () => { overlay.remove(); cb(false); };
+  overlay.onclick = (e) => { if (e.target === overlay) { overlay.remove(); cb(false); } };
+}
+let editingId = null, uploadedImages = [];
+let allProducts = [], allOrders = [], allCategories = [], allShops = [];
+let adminToken = localStorage.getItem('admin_token') || '';
+
+async function api(url, opts={}) {
+  const headers = {'Content-Type':'application/json'};
+  if (adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
+  const res = await fetch(url, {
+    headers: {...headers, ...opts.headers}, ...opts
+  });
+  if (res.status === 401) { showLogin(); throw new Error('请先登录'); }
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error||'请求失败'); }
+  return res.json();
+}
+
+function showLogin() {
+  document.getElementById('loginModal').classList.add('active');
+  document.getElementById('loginUserInput').value = 'admin';
+  document.getElementById('loginPassInput').value = '';
+  setTimeout(() => document.getElementById('loginPassInput').focus(), 100);
+}
+
+async function doLogin() {
+  const username = document.getElementById('loginUserInput').value.trim();
+  const password = document.getElementById('loginPassInput').value;
+  if (!username || !password) { toast('请输入用户名和密码', 'warning'); return; }
+  try {
+    const d = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({username, password})
+    }).then(r => r.json());
+    if (!d.token) { toast(d.error || '登录失败', 'error'); return; }
+    adminToken = d.token;
+    localStorage.setItem('admin_token', d.token);
+    document.getElementById('loginModal').classList.remove('active');
+    document.getElementById('loginBadge').textContent = '已登录';
+    document.getElementById('loginUser').textContent = username;
+    document.getElementById('loginUser').style.display = 'inline';
+    switchTab('dashboard');
+  } catch (e) { toast('登录失败: ' + e.message, 'error'); }
+}
+
+// Auto login check
+(async function() {
+  if (adminToken) {
+    try {
+      const d = await api('/api/auth/profile');
+      document.getElementById('loginBadge').textContent = '已登录';
+      document.getElementById('loginUser').textContent = d.username;
+      document.getElementById('loginUser').style.display = 'inline';
+      switchTab('dashboard');
+      return;
+    } catch(e) {}
+  }
+  showLogin();
+})();
+
+function switchTab(name) {
+  document.querySelectorAll('#sideNav a').forEach(a => a.classList.toggle('active', a.dataset.tab===name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id==='tab-'+name));
+  document.getElementById('pageTitle').textContent = {'dashboard':'仪表盘','products':'商品管理','categories':'分类管理','orders':'订单管理','users':'用户管理','aftersales':'售后管理'}[name];
+  if (name==='dashboard') loadDashboard();
+  if (name==='products') loadProducts();
+  if (name==='categories') loadCategories();
+  if (name==='orders') loadOrders();
+  if (name==='users') loadUsers();
+  if (name==='aftersales') loadAfterSales();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('#sideNav a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); switchTab(a.dataset.tab); }));
+
+// ===================== AFTERSALES =====================
+let allAfterSales = [];
+let asPage = 0;
+const asPerPage = 20;
+
+async function loadAfterSales() {
+  try {
+    const resp = await api('/api/admin/aftersales');
+    allAfterSales = resp.data || resp;
+    filterAfterSales();
+  } catch (e) {
+    toast('加载售后记录失败: ' + e.message, 'error');
+  }
+}
+
+function filterAfterSales() {
+  const filter = document.getElementById('asFilter').value;
+  let filtered = allAfterSales;
+  if (filter) {
+    filtered = allAfterSales.filter(a => a.status === filter);
+  }
+  renderAfterSalesTable(filtered);
+}
+
+function renderAfterSalesTable(list) {
+  const tp = Math.ceil(list.length / asPerPage) || 1;
+  if (asPage >= tp) asPage = 0;
+  const start = asPage * asPerPage;
+  const page = list.slice(start, start + asPerPage);
+  const tbody = document.getElementById('afterSalesTable');
+  tbody.innerHTML = page.map(a => {
+    const typeLabel = {'refund':'仅退款','exchange':'换货','return':'退货退款'}[a.type] || a.type;
+    const statusClass = {'pending':'tag-orange','processing':'tag-blue','approved':'tag-green','rejected':'tag-red'}[a.status] || 'tag-gray';
+    const statusLabel = {'pending':'待处理','processing':'处理中','approved':'已通过','rejected':'已拒绝'}[a.status] || a.status;
+    return `<tr>
+      <td>${a.id}</td>
+      <td style="font-family:monospace;font-size:11px;color:#666">${a.order_number}</td>
+      <td>${a.username}</td>
+      <td>${typeLabel}</td>
+      <td style="font-weight:600;color:#FF5722">¥${Number(a.refund_amount).toFixed(2)}</td>
+      <td style="font-size:12px;color:#999">${a.apply_time||'-'}</td>
+      <td><span class="tag ${statusClass}">${statusLabel}</span></td>
+      <td>
+        ${a.status === 'pending' ? `
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-success btn-xs" onclick="processAfterSale(${a.id},'approved')">通过</button>
+            <button class="btn btn-danger btn-xs" onclick="processAfterSale(${a.id},'rejected')">拒绝</button>
+          </div>
+        ` : `<span style="color:#94a3b8;font-size:12px">${a.process_time ? new Date(a.process_time).toLocaleDateString('zh-CN') : '-'}</span>`}
+        ${a.process_note ? `<br><small style="color:#999">备注: ${a.process_note}</small>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+  if (!page.length) tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><p>暂无售后记录</p></div></td></tr>';
+  const pg = document.getElementById('asPagination');
+  pg.innerHTML = tp>1 ? Array.from({length:tp},(_,i)=>
+    `<span class="${i===asPage?'active':''}" onclick="asPage=${i};filterAfterSales()">${i+1}</span>`
+  ).join('') : '';
+}
+
+async function processAfterSale(id, status) {
+  const label = status === 'approved' ? '通过' : '拒绝';
+  confirmDlg(`确定${label}此售后申请？`, async (ok) => {
+    if (!ok) return;
+    try {
+      await api('/api/aftersales/' + id + '/process', {
+        method: 'PUT',
+        body: JSON.stringify({status, processNote: '管理员' + label})
+      });
+      toast('已' + label + '售后申请', 'success');
+      loadAfterSales();
+    } catch (e) {
+      toast('操作失败: ' + e.message, 'error');
+    }
+  });
+}
+
+// ===================== DASHBOARD =====================
+async function loadDashboard() {
+  const d = await api('/api/admin/dashboard');
+  document.getElementById('statsCards').innerHTML = `
+    <div class="stat-card"><div class="label">商品总数</div><div class="num green">${d.totalProducts || 0}</div></div>
+    <div class="stat-card"><div class="label">订单总数</div><div class="num orange">${d.orderCount || 0}</div></div>
+    <div class="stat-card"><div class="label">用户总数</div><div class="num blue">${d.totalUsers || 0}</div></div>
+    <div class="stat-card"><div class="label">已完成交易额</div><div class="num red">¥${Number(d.totalRevenue || 0).toLocaleString()}</div></div>
+  `;
+  const chart = document.getElementById('orderStatusChart');
+  chart.innerHTML = (d.orderStatusBreakdown||[]).map(s =>
+    `<div style="padding:10px 16px;background:#f9f9f9;border-radius:8px;text-align:center;flex:1;min-width:80px">
+      <div style="font-size:20px;font-weight:700;color:#FF5722">${s.count}</div>
+      <div style="font-size:12px;color:#999;margin-top:2px">${s.status}</div>
+    </div>`
+  ).join('');
+  const recent = document.getElementById('recentOrders');
+  if (!d.recentOrders||d.recentOrders.length===0) { recent.innerHTML='<div class="empty"><p>暂无订单</p></div>'; }
+  else {
+  recent.innerHTML = `<table><thead><tr><th>订单号</th><th>用户</th><th>金额</th><th>时间</th><th>状态</th></tr></thead><tbody>${
+    d.recentOrders.map(o => `<tr><td style="font-family:monospace;font-size:12px">${o.order_number.slice(-12)}</td><td>${o.username}</td><td>¥${Number(o.total_price).toFixed(2)}</td><td style="font-size:12px;color:#999">${o.create_time||'-'}</td><td>${statusBadge(o.status)}</td></tr>`).join('')
+  }</tbody></table>`;
+  }
+
+  // Load additional stats
+  try {
+    const s = await api('/api/admin/stats');
+
+    // Daily sales bar chart
+    const ds = s.dailySales || [];
+    const dsc = document.getElementById('dailySalesChart');
+    if (ds.length) {
+      const max = Math.max(...ds.map(d => Number(d.total) || 0), 1);
+      dsc.innerHTML = '<div style="display:flex;align-items:flex-end;gap:3px;height:130px;padding:6px 2px">' +
+        ds.slice().reverse().map(d => {
+          const pct = Math.max(2, (Number(d.total) / max) * 100);
+          return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">' +
+            '<div style="width:100%;background:linear-gradient(to top,#FF5722,#ff8a65);border-radius:4px 4px 0 0;height:' + pct + '%;min-height:2px">' +
+            '</div>' +
+            '<div style="font-size:8px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center">' + (d.day ? d.day.slice(5) : '') + '</div>' +
+            '</div>';
+        }).join('') + '</div>';
+    } else {
+      dsc.innerHTML = '<div class="empty"><p>暂无销售数据</p></div>';
+    }
+
+    // Category sales ranking
+    const cs = s.categorySales || [];
+    const csr = document.getElementById('categorySalesRanking');
+    if (cs.length) {
+      const cmax = Math.max(...cs.map(c => Number(c.count) || 0), 1);
+      csr.innerHTML = '<table><thead><tr><th>分类</th><th>销量</th></tr></thead><tbody>' +
+        cs.map(c => {
+          const wpct = (Number(c.count) / cmax) * 100;
+          return '<tr><td>' + (c.category||'-') + '</td><td><div style="display:flex;align-items:center;gap:8px">' +
+            '<div style="flex:1;background:#f1f3f6;border-radius:6px;overflow:hidden;height:20px">' +
+            '<div style="background:linear-gradient(to right,#FF5722,#ff8a65);width:' + wpct + '%;height:100%;border-radius:6px;min-width:20px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px">' +
+            '<span style="font-size:10px;color:#fff;font-weight:600">' + c.count + '</span>' +
+            '</div></div></div></td></tr>';
+        }).join('') + '</tbody></table>';
+    } else {
+      csr.innerHTML = '<div class="empty"><p>暂无数据</p></div>';
+    }
+
+    // Top 10 products
+    const tp = s.topProducts || [];
+    const tpl = document.getElementById('topProductsList');
+    if (tp.length) {
+      tpl.innerHTML = '<table><thead><tr><th style="width:30px">#</th><th>商品</th><th>销量</th></tr></thead><tbody>' +
+        tp.map((p, i) => '<tr>' +
+          '<td style="font-weight:' + (i<3?'700':'400') + ';color:' + (['#FF5722','#fb923c','#fdba74'][i]||'#999') + '">' + (i+1) + '</td>' +
+          '<td><div class="prod-name" title="' + escHtml(p.name||'') + '">' + (p.name||'-') + '</div></td>' +
+          '<td><strong>' + (p.total_sales||0) + '</strong></td>' +
+          '</tr>').join('') + '</tbody></table>';
+    } else {
+      tpl.innerHTML = '<div class="empty"><p>暂无数据</p></div>';
+    }
+  } catch(e) {
+    // stats endpoint is bonus, don't break dashboard if it fails
+  }
+}
+
+// ===================== PRODUCTS =====================
+async function loadProducts() {
+  const prodResp = await api('/api/admin/products?pageSize=999');
+  allProducts = prodResp.items || prodResp;
+  allShops = await api('/api/shops');
+  const catSelect = document.getElementById('prodCategoryFilter');
+  try {
+    const catResp = await api('/api/admin/categories');
+    const flat = catResp.flat || [];
+    catSelect.innerHTML = '<option value="">全部分类</option>' +
+      flat.map(c => `<option value="${c.full_path}">${'　'.repeat(c.level-1)}${c.name}</option>`).join('');
+  } catch (e) {
+    // fallback
+    const cats = [...new Set(allProducts.map(x => x.category).filter(Boolean))].sort();
+    catSelect.innerHTML = '<option value="">全部分类</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  }
+  const shops = [...new Set(allProducts.map(x => x.shop_name).filter(Boolean))].sort();
+  const shopSelect = document.getElementById('prodShopFilter');
+  shopSelect.innerHTML = '<option value="">全部店铺</option>'+shops.map(s=>`<option value="${s}">${s}</option>`).join('');
+  filterProducts();
+}
+
+function filterProducts() {
+  const kw = document.getElementById('prodSearch').value.toLowerCase();
+  const cat = document.getElementById('prodCategoryFilter').value;
+  const shop = document.getElementById('prodShopFilter').value;
+  let filtered = allProducts.filter(p =>
+    (!kw || p.name.toLowerCase().includes(kw)) &&
+    (!cat || p.category===cat) &&
+    (!shop || p.shop_name===shop)
+  );
+  renderProductTable(filtered);
+}
+
+let prodPage = 0, prodPerPage = 15;
+function renderProductTable(list) {
+  const totalPages = Math.ceil(list.length/prodPerPage)||1;
+  if (prodPage >= totalPages) prodPage = 0;
+  const start = prodPage * prodPerPage;
+  const page = list.slice(start, start+prodPerPage);
+  const tbody = document.getElementById('productTable');
+  tbody.innerHTML = page.map(p => {
+    const skuCount = Array.isArray(p.skus) ? p.skus.length : 0;
+    return `<tr>
+      <td><div style="width:48px;height:48px;background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">${(p.name||'?').slice(0,4)}</div></td>
+      <td><div class="prod-name" title="${p.name}">${highlight(p.name,document.getElementById('prodSearch').value)}</div></td>
+      <td style="font-weight:600;color:#FF5722">¥${Number(p.price).toFixed(2)}</td>
+      <td><span class="tag tag-blue">${p.category||'-'}</span></td>
+      <td><span class="tag tag-green">${p.shop_name||'自营'}</span></td>
+      <td>${skuCount>0?skuCount+'个':'-'}</td>
+      <td>
+        <button class="btn btn-primary btn-xs" onclick="editProduct(${p.id})">编辑</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteProduct(${p.id})">删除</button>
+      </td>
+    </tr>`;
+  }).join('');
+  if (!page.length) tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><p>暂无商品</p></div></td></tr>';
+  const pg = document.getElementById('prodPagination');
+  pg.innerHTML = totalPages>1 ? Array.from({length:totalPages},(_,i)=>
+    `<span class="${i===prodPage?'active':''}" onclick="prodPage=${i};filterProducts()">${i+1}</span>`
+  ).join('') : '';
+}
+
+async function deleteProduct(id) {
+  confirmDlg('确定删除该商品？', async (ok) => {
+    if (!ok) return;
+    await api('/api/admin/products/'+id, {method:'DELETE'});
+    toast('删除成功', 'success');
+    loadProducts();
+  });
+}
+
+async function populateCategorySelect(selectedCat) {
+  const catSel = document.getElementById('f-category');
+  const customInput = document.getElementById('f-category-custom');
+  try {
+    const resp = await api('/api/admin/categories');
+    const flat = resp.flat || [];
+    catSel.innerHTML = '<option value="">选择分类</option>';
+    // Build indented option list
+    for (const c of flat) {
+      const indent = '　'.repeat(Math.max(0, c.level - 1));
+      const opt = document.createElement('option');
+      opt.value = c.full_path;
+      opt.textContent = indent + c.name;
+      if (selectedCat && c.full_path === selectedCat) opt.selected = true;
+      catSel.appendChild(opt);
+    }
+    catSel.innerHTML += '<option value="__custom__">自定义...</option>';
+    // Check if selectedCat is a custom (non-existent) category
+    if (selectedCat && !flat.some(c => c.full_path === selectedCat)) {
+      catSel.value = '__custom__';
+      customInput.style.display = 'block';
+      customInput.value = selectedCat;
+    } else {
+      customInput.style.display = 'none';
+    }
+  } catch (e) {
+    // fallback: populate from products
+    const cats = [...new Set(allProducts.map(x => x.category).filter(Boolean))].sort();
+    catSel.innerHTML = '<option value="">选择分类</option>'+cats.map(c=>`<option value="${c}" ${selectedCat===c?'selected':''}>${c}</option>`).join('')+'<option value="__custom__">自定义...</option>';
+    customInput.style.display = (selectedCat && !cats.includes(selectedCat)) ? 'block' : 'none';
+    if (customInput.style.display === 'block') customInput.value = selectedCat || '';
+  }
+  catSel.onchange = () => {
+    customInput.style.display = catSel.value==='__custom__'?'block':'none';
+    if (catSel.value!=='__custom__') customInput.value = catSel.value;
+  };
+}
+
+async function openProductModal(p) {
+  editingId = p ? p.id : null;
+  document.getElementById('modalTitle').textContent = p ? '编辑商品' : '添加商品';
+  document.getElementById('f-name').value = p ? p.name : '';
+  document.getElementById('f-price').value = p ? p.price : '';
+  document.getElementById('f-image').value = p ? p.image : '';
+  document.getElementById('f-image-preview').src = p && p.image ? (p.image.startsWith('/')?p.image:'/'+p.image) : '';
+  document.getElementById('f-image-preview').style.display = p && p.image ? 'block' : 'none';
+  document.getElementById('f-description').value = p ? p.description : '';
+  document.getElementById('f-detail').value = p ? (p.detailHtml||p.detail_html||'') : '';
+  document.getElementById('f-specs').value = p && p.specs ? JSON.stringify(p.specs,null,2) : '';
+  document.getElementById('f-skus').value = p && p.skus ? JSON.stringify(p.skus,null,2) : '';
+  uploadedImages = p && p.images ? [...p.images] : [];
+  renderImagesPreview();
+
+  await populateCategorySelect(p ? p.category : '');
+
+  const shopSel = document.getElementById('f-shop');
+  shopSel.innerHTML = '<option value="0">自营</option>'+allShops.map(s=>`<option value="${s.id}" ${p&&p.shop_id==s.id?'selected':''}>${s.name}</option>`).join('');
+
+  document.getElementById('productModal').classList.add('active');
+}
+
+function closeProductModal() {
+  document.getElementById('productModal').classList.remove('active');
+  editingId = null;
+}
+
+async function uploadMain(input) {
+  const file = input.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append('file', file);
+  const r = await fetch('/api/upload', {method:'POST', body:fd});
+  const d = await r.json();
+  document.getElementById('f-image').value = d.url;
+  document.getElementById('f-image-preview').src = d.url;
+  document.getElementById('f-image-preview').style.display = 'block';
+}
+
+async function uploadMore(input) {
+  const files = input.files; if (!files.length) return;
+  const fd = new FormData();
+  for (const f of files) fd.append('files', f);
+  const r = await fetch('/api/upload/multiple', {method:'POST', body:fd});
+  const d = await r.json();
+  for (const item of d.urls) { if (!uploadedImages.includes(item.url)) uploadedImages.push(item.url); }
+  renderImagesPreview();
+}
+
+function renderImagesPreview() {
+  const c = document.getElementById('f-images-preview');
+  c.innerHTML = uploadedImages.map((url,i) =>
+    `<div class="thumb"><img src="${url}" style="width:56px;height:56px;border-radius:6px;object-fit:cover"><span class="del" onclick="uploadedImages.splice(${i},1);renderImagesPreview()">×</span></div>`
+  ).join('');
+}
+
+async function saveProduct() {
+  const catVal = document.getElementById('f-category').value==='__custom__'
+    ? document.getElementById('f-category-custom').value.trim()
+    : document.getElementById('f-category').value;
+  const data = {
+    name: document.getElementById('f-name').value.trim(),
+    price: parseFloat(document.getElementById('f-price').value),
+    image: document.getElementById('f-image').value.trim(),
+    images: uploadedImages,
+    description: document.getElementById('f-description').value.trim(),
+    detailHtml: document.getElementById('f-detail').value.trim(),
+    category: catVal,
+    shop_id: parseInt(document.getElementById('f-shop').value) || 0
+  };
+  if (!data.name || !data.price) { toast('名称和价格不能为空', 'warning'); return; }
+  try { data.specs = JSON.parse(document.getElementById('f-specs').value||'[]'); data.skus = JSON.parse(document.getElementById('f-skus').value||'[]'); }
+  catch(e) { toast('JSON 格式错误: '+e.message, 'error'); return; }
+  if (editingId) {
+    await api('/api/admin/products/'+editingId, {method:'PUT', body:JSON.stringify(data)});
+  } else {
+    await api('/api/admin/products', {method:'POST', body:JSON.stringify(data)});
+  }
+  closeProductModal(); loadProducts();
+}
+
+async function editProduct(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (p) await openProductModal(p);
+}
+
+function highlight(text, kw) { return !kw ? text : text.replace(new RegExp('('+kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'), '<span class="search-highlight">$1</span>'); }
+
+// ===================== CATEGORIES =====================
+let categoryFlatData = [];
+let currentCatId = 0;
+let catSearchValue = '';
+
+function getChildren(parentId) {
+  return categoryFlatData.filter(c => (c.parent_id || 0) === parentId).sort((a, b) => a.sort_order - b.sort_order);
+}
+
+function getBreadcrumb(id) {
+  const path = [];
+  let cur = categoryFlatData.find(c => c.id === id);
+  while (cur) {
+    path.unshift(cur);
+    cur = categoryFlatData.find(c => c.id === (cur.parent_id || 0));
+  }
+  return path;
+}
+
+function getParentId(id) {
+  const c = categoryFlatData.find(x => x.id === id);
+  return c ? (c.parent_id || 0) : 0;
+}
+
+async function loadCategories() {
+  const resp = await api('/api/admin/categories');
+  const flat = resp.flat || [];
+  categoryFlatData = flat;
+  renderCategories();
+}
+
+function renderCategories() {
+  const sq = document.getElementById('catSearch');
+  const kw = (sq && sq.value || '').trim().toLowerCase();
+  catSearchValue = kw;
+
+  // Build parent select for add modal
+  const sel = document.getElementById('catParentSelect');
+  if (sel) {
+    const parentCandidates = categoryFlatData.filter(c => c.level < 3 || (c.parent_id || 0) === currentCatId);
+    sel.innerHTML = '<option value="">顶级分类</option>' +
+      parentCandidates.map(c => `<option value="${c.id}">${'  '.repeat(Math.max(0, c.level - 1))}${c.name}</option>`).join('');
+  }
+
+  const list = document.getElementById('categoryList');
+
+  if (!categoryFlatData.length) {
+    list.innerHTML = '<div class="cat-empty">暂无分类</div>';
+    return;
+  }
+
+  let html = '';
+
+  // === Breadcrumb ===
+  if (currentCatId === 0) {
+    html += '<div class="cat-breadcrumb"><span class="crumb-active">全部</span></div>';
+  } else {
+    const crumbs = getBreadcrumb(currentCatId);
+    html += '<div class="cat-breadcrumb">';
+    html += '<span class="crumb-link" onclick="navigateToCat(0)">全部</span>';
+    for (const c of crumbs) {
+      if (c.id === currentCatId) {
+        html += ' <span class="crumb-sep">›</span> <span class="crumb-active">' + escHtml(c.name) + '</span>';
+      } else {
+        html += ' <span class="crumb-sep">›</span> <span class="crumb-link" onclick="navigateToCat(' + c.id + ')">' + escHtml(c.name) + '</span>';
+      }
+    }
+    html += '</div>';
+  }
+
+  // === 2-level flat table ===
+  if (!kw) {
+    const parents = getChildren(currentCatId);
+    if (!parents.length) {
+      html += '<div class="cat-empty">此分类下暂无子分类</div>';
+    } else {
+      html += '<div class="cat-table-wrap"><table class="cat-table">';
+      html += '<thead><tr><th>名称</th><th style="width:70px">产品数</th><th style="width:160px">操作</th></tr></thead><tbody>';
+      for (const p of parents) {
+        const children = getChildren(p.id);
+        // Parent row
+        html += '<tr id="cr-' + p.id + '">';
+        html += '<td><div class="td-name">';
+        html += '<span class="cat-dot l' + Math.min(p.level || 0, 2) + '"></span>';
+        html += '<span class="cat-name" ondblclick="rn(' + p.id + ')" title="双击重命名">' + escHtml(p.name) + '</span>';
+        html += '<input class="cat-renaming" id="ri-' + p.id + '" style="display:none" onblur="svRn(' + p.id + ')" onkeydown="rk(event,' + p.id + ')">';
+        if (children.length) {
+          html += '<span class="cat-child-count">' + children.length + ' 子分类</span>';
+        }
+        html += '</div></td>';
+        html += '<td>' + (p.product_count || 0) + '</td>';
+        html += '<td><div class="cat-acts">';
+        if (children.length) {
+          html += '<button class="mu" onclick="navigateToCat(' + p.id + ')" title="进入分类"><svg viewBox="0 0 24 24" style="width:13px;height:13px"><polyline points="9 18 15 12 9 6"/></svg></button>';
+        }
+        html += '<button class="mu" onclick="mv(' + p.id + ',-1)" title="上移"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>';
+        html += '<button class="mu" onclick="mv(' + p.id + ',1)" title="下移"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>';
+        html += '<button class="mu" onclick="showAddCategory(' + p.id + ')" title="添加子分类"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
+        html += '<button class="del" onclick="delCat(' + p.id + ',\'' + escHtml(p.name) + '\')" title="删除"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+        html += '</div></td>';
+        html += '</tr>';
+        // Child rows
+        for (const c of children) {
+          html += '<tr class="sub-row" id="cr-' + c.id + '">';
+          html += '<td><div class="td-name">';
+          html += '<span class="sub-connector"></span>';
+          html += '<span class="cat-dot l' + Math.min(c.level || 0, 2) + '"></span>';
+          html += '<span class="cat-name" ondblclick="rn(' + c.id + ')" title="双击重命名">' + escHtml(c.name) + '</span>';
+          html += '<input class="cat-renaming" id="ri-' + c.id + '" style="display:none" onblur="svRn(' + c.id + ')" onkeydown="rk(event,' + c.id + ')">';
+          html += '</div></td>';
+          html += '<td>' + (c.product_count || 0) + '</td>';
+          html += '<td><div class="cat-acts">';
+          html += '<button class="mu" onclick="mv(' + c.id + ',-1)" title="上移"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>';
+          html += '<button class="mu" onclick="mv(' + c.id + ',1)" title="下移"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>';
+          html += '<button class="mu" onclick="showAddCategory(' + c.id + ')" title="添加子分类"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
+          html += '<button class="del" onclick="delCat(' + c.id + ',\'' + escHtml(c.name) + '\')" title="删除"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+          html += '</div></td>';
+          html += '</tr>';
+        }
+      }
+      html += '</tbody></table></div>';
+    }
+  } else {
+    // Search mode: flat results
+    const hits = categoryFlatData.filter(c => c.name.toLowerCase().includes(kw));
+    if (!hits.length) {
+      html += '<div class="cat-empty">未找到匹配的分类</div>';
+    } else {
+      html += '<div class="cat-table-wrap"><table class="cat-table">';
+      html += '<thead><tr><th>名称</th><th style="width:70px">产品数</th><th style="width:160px">操作</th></tr></thead><tbody>';
+      for (const item of hits) {
+        html += '<tr id="cr-' + item.id + '">';
+        html += '<td><div class="td-name">';
+        html += '<span class="cat-dot l' + Math.min(item.level || 0, 2) + '" style="margin-right:8px"></span>';
+        html += '<span class="cat-name" ondblclick="rn(' + item.id + ')" title="双击重命名">' + escHtml(item.name) + '</span>';
+        html += '<input class="cat-renaming" id="ri-' + item.id + '" style="display:none" onblur="svRn(' + item.id + ')" onkeydown="rk(event,' + item.id + ')">';
+        html += '</div></td>';
+        html += '<td>' + (item.product_count || 0) + '</td>';
+        html += '<td><div class="cat-acts">';
+        html += '<button class="mu" onclick="mv(' + item.id + ',-1)" title="上移"><svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg></button>';
+        html += '<button class="mu" onclick="mv(' + item.id + ',1)" title="下移"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>';
+        html += '<button class="mu" onclick="showAddCategory(' + item.id + ')" title="添加子分类"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
+        html += '<button class="del" onclick="delCat(' + item.id + ',\'' + escHtml(item.name) + '\')" title="删除"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+        html += '</div></td>';
+        html += '</tr>';
+      }
+      html += '</tbody></table></div>';
+    }
+  }
+
+  // === Back button ===
+  if (currentCatId !== 0 && !kw) {
+    html += '<div class="cat-back" onclick="navigateUp()"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2"><polyline points="15 18 9 12 15 6"/></svg> 返回上级</div>';
+  }
+
+  list.innerHTML = html;
+}
+
+function navigateToCat(id) {
+  currentCatId = id;
+  document.getElementById('catSearch').value = '';
+  renderCategories();
+}
+function navigateUp() {
+  if (currentCatId === 0) return;
+  currentCatId = getParentId(currentCatId) || 0;
+  renderCategories();
+}
+
+function onCatSearch(v) {
+  renderCategories();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function rn(id) {
+  const row = document.getElementById('cr-' + id);
+  if (!row) return;
+  const s = row.querySelector('.cat-name');
+  const i = document.getElementById('ri-' + id);
+  if (!s || !i) return;
+  i.value = s.textContent.trim();
+  s.style.display = 'none';
+  i.style.display = 'inline-block';
+  i.focus();
+  i.select();
+}
+function svRn(id) {
+  const row = document.getElementById('cr-' + id);
+  if (!row) return;
+  const s = row.querySelector('.cat-name');
+  const i = document.getElementById('ri-' + id);
+  if (!s || !i) return;
+  const v = i.value.trim();
+  i.style.display = 'none';
+  s.style.display = '';
+  if (v && v !== s.textContent.trim()) api('/api/admin/categories/' + id, {method:'PUT', body:JSON.stringify({name: v})}).then(() => { loadCategories(); loadProducts(); });
+}
+function rk(e, id) {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('ri-' + id).blur(); }
+  else if (e.key === 'Escape') { e.preventDefault(); const s = document.querySelector('#cr-' + id + ' .cat-name'); const i = document.getElementById('ri-' + id); if (s) s.style.display = ''; if (i) i.style.display = 'none'; }
+}
+
+function showAddCategory(parentId) {
+  document.getElementById('catModalTitle').textContent = parentId ? '添加子分类' : '添加分类';
+  document.getElementById('catNameInput').value = '';
+  document.getElementById('catParentSelect').value = parentId || (currentCatId || '');
+  document.getElementById('catModal').classList.add('active');
+  setTimeout(() => document.getElementById('catNameInput').focus(), 100);
+}
+function closeCatModal() { document.getElementById('catModal').classList.remove('active'); }
+async function saveCategory() {
+  const n = document.getElementById('catNameInput').value.trim();
+  const p = parseInt(document.getElementById('catParentSelect').value) || 0;
+  if (!n) { toast('请输入分类名称', 'warning'); return; }
+  await api('/api/admin/categories', {method:'POST', body:JSON.stringify({name:n, parentId:p||undefined})});
+  closeCatModal(); loadCategories(); loadProducts();
+}
+
+function mv(id, dir) {
+  // Get siblings at same level (only items with same parentId, or at root level)
+  const item = categoryFlatData.find(c => c.id === id);
+  if (!item) return;
+  const siblings = categoryFlatData
+    .filter(c => (c.parent_id || 0) === (item.parent_id || 0))
+    .sort((a, b) => a.sort_order - b.sort_order);
+  const idx = siblings.findIndex(c => c.id === id);
+  const tgt = idx + dir;
+  if (tgt < 0 || tgt >= siblings.length) return;
+  api('/api/admin/categories/sort', {method:'PUT', body:JSON.stringify({
+    items: [{id: siblings[idx].id, sortOrder: siblings[tgt].sort_order}, {id: siblings[tgt].id, sortOrder: siblings[idx].sort_order}]
+  })}).then(() => loadCategories());
+}
+
+function delCat(id, name) {
+  confirmDlg('确定删除分类 "' + name + '" 吗？', (ok) => {
+    if (!ok) return;
+    api('/api/admin/categories/' + id, {method:'DELETE'}).then(() => { toast('删除成功', 'success'); loadCategories(); }).catch(e => toast('删除失败: ' + e.message, 'error'));
+  });
+}
+
+// ===================== ORDERS =====================
+let orderFilterStatus = '';
+async function loadOrders() {
+  const orderResp = await api('/api/admin/orders?pageSize=999');
+  allOrders = orderResp.items || orderResp;
+  filterOrders();
+}
+
+function setOrderFilter(el) {
+  document.querySelectorAll('.orders-filter .filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  orderFilterStatus = el.dataset.status;
+  filterOrders();
+}
+
+function filterOrders() {
+  const kw = document.getElementById('orderSearch').value.toLowerCase();
+  let filtered = allOrders.filter(o =>
+    (!orderFilterStatus || o.status===orderFilterStatus) &&
+    (!kw || o.order_number.toLowerCase().includes(kw) || o.username.toLowerCase().includes(kw))
+  );
+  renderOrderTable(filtered);
+}
+
+let orderPage = 0, orderPerPage = 20;
+function renderOrderTable(list) {
+  const tp = Math.ceil(list.length/orderPerPage)||1;
+  if (orderPage >= tp) orderPage = 0;
+  const start = orderPage * orderPerPage;
+  const page = list.slice(start, start+orderPerPage);
+  const tbody = document.getElementById('orderTable');
+  tbody.innerHTML = page.map(o => {
+    const items = (o.items||[]).map(i => i.product_name).join(', ');
+    return `<tr>
+      <td style="font-family:monospace;font-size:11px;color:#666">${o.order_number}</td>
+      <td>${o.username}</td>
+      <td style="font-weight:600;color:#FF5722">¥${Number(o.total_price).toFixed(2)}</td>
+      <td class="order-products" title="${items}">${items || '-'}</td>
+      <td style="font-size:12px;color:#999">${o.create_time||'-'}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td>
+        ${o.status==='待发货' ? `
+          <div style="display:flex;gap:4px;flex-wrap:wrap;min-width:200px">
+            <input id="track-${o.order_number}" placeholder="单号" style="width:80px;padding:4px 7px;border:1px solid #e2e5ea;border-radius:5px;font-size:11px;outline:none">
+            <select id="exp-${o.order_number}" style="padding:4px 5px;border:1px solid #e2e5ea;border-radius:5px;font-size:11px;outline:none;background:#fff">
+              <option value="顺丰速运">顺丰</option><option value="中通快递">中通</option><option value="圆通速递">圆通</option>
+              <option value="韵达快递">韵达</option><option value="京东物流">京东</option><option value="邮政EMS">EMS</option>
+            </select>
+            <button class="btn btn-success btn-xs" onclick="shipOrder('${o.order_number}')">发货</button>
+          </div>
+        ` : `
+          <select onchange="updateOrderStatus('${o.order_number}',this.value)" style="padding:4px 7px;border:1px solid #e2e5ea;border-radius:5px;font-size:11px;outline:none;background:#fff">
+            <option value="">修改状态</option>
+            <option value="待付款">待付款</option><option value="待发货">待发货</option>
+            <option value="配送中">配送中</option><option value="已完成">已完成</option>
+            <option value="已取消">已取消</option><option value="退款中">退款中</option><option value="已退款">已退款</option>
+          </select>
+        `}
+        ${o.tracking_number ? `<br><small style="color:#999">${o.express_company||'-'}: ${o.tracking_number}</small>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+  if (!page.length) tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><p>暂无订单</p></div></td></tr>';
+  const pg = document.getElementById('orderPagination');
+  pg.innerHTML = tp>1 ? Array.from({length:tp},(_,i)=>
+    `<span class="${i===orderPage?'active':''}" onclick="orderPage=${i};filterOrders()">${i+1}</span>`
+  ).join('') : '';
+}
+
+function statusBadge(s) {
+  const cls = {'待付款':'tag-orange','待发货':'tag-blue','配送中':'tag-blue','已完成':'tag-green','已取消':'tag-gray','退款中':'tag-red','已退款':'tag-purple'}[s]||'tag-gray';
+  return `<span class="tag ${cls}">${s||'-'}</span>`;
+}
+
+async function shipOrder(no) {
+  const tr = document.getElementById('track-'+no).value.trim();
+  const ex = document.getElementById('exp-'+no).value;
+  if (!tr) { toast('请输入快递单号', 'warning'); return; }
+  await api('/api/admin/orders/'+no+'/ship', {method:'PUT', body:JSON.stringify({tracking_number:tr,express_company:ex})});
+  loadOrders();
+}
+
+async function updateOrderStatus(no, st) {
+  if (!st) return;
+  await api('/api/admin/orders/'+no+'/status', {method:'PUT', body:JSON.stringify({status:st})});
+  loadOrders();
+}
+
+// ===================== USERS =====================
+let allUsers = [];
+let userPage = 0;
+const userPerPage = 15;
+
+async function loadUsers() {
+  const resp = await api('/api/admin/users');
+  allUsers = resp.items || [];
+  filterUsers();
+}
+
+function filterUsers() {
+  const kw = document.getElementById('userSearch').value.toLowerCase();
+  let filtered = allUsers.filter(u =>
+    !kw || u.username.toLowerCase().includes(kw) || (u.nickname||'').toLowerCase().includes(kw) || (u.phone||'').includes(kw)
+  );
+  renderUserTable(filtered);
+}
+
+function memberLevelLabel(level) {
+  const labels = ['普通会员', '白银会员', '黄金会员', '铂金会员', '钻石会员'];
+  return labels[level] || '普通会员';
+}
+function memberLevelClass(level) {
+  const cls = ['tag-gray', 'tag-blue', 'tag-orange', 'tag-purple', 'tag-green'];
+  return cls[level] || 'tag-gray';
+}
+
+function renderUserTable(list) {
+  const tp = Math.ceil(list.length / userPerPage) || 1;
+  if (userPage >= tp) userPage = 0;
+  const start = userPage * userPerPage;
+  const page = list.slice(start, start + userPerPage);
+  const tbody = document.getElementById('userTable');
+  tbody.innerHTML = page.map(u => `<tr>
+    <td>${u.id}</td>
+    <td><strong>${u.username}</strong></td>
+    <td>${u.nickname || '-'}</td>
+    <td>${u.phone || '-'}</td>
+    <td>${u.points || 0}</td>
+    <td><span class="tag ${memberLevelClass(u.member_level)}">${memberLevelLabel(u.member_level)}</span></td>
+    <td style="font-size:12px;color:#999">${u.created_at || '-'}</td>
+    <td>${u.is_admin ? '<span class="tag tag-red">管理员</span>' : '<span class="tag tag-gray">否</span>'}</td>
+  </tr>`).join('');
+  if (!page.length) tbody.innerHTML = '<tr><td colspan="8"><div class="empty"><p>暂无用户</p></div></td></tr>';
+  const pg = document.getElementById('userPagination');
+  pg.innerHTML = tp > 1 ? Array.from({length:tp}, (_,i) =>
+    `<span class="${i===userPage?'active':''}" onclick="userPage=${i};filterUsers()">${i+1}</span>`
+  ).join('') : '';
+}
+
+// NOTE: init is handled by auto-login check above
+</script>
+</body>
+</html>

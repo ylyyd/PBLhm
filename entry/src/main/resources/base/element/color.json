@@ -1,0 +1,25 @@
+{
+  "color": [
+    { "name": "start_window_background", "value": "#FFFFFF" },
+    { "name": "primary", "value": "#FF5722" },
+    { "name": "primary_light", "value": "#FFF0EB" },
+    { "name": "primary_dark", "value": "#E64A19" },
+    { "name": "text_primary", "value": "#333333" },
+    { "name": "text_secondary", "value": "#666666" },
+    { "name": "text_hint", "value": "#999999" },
+    { "name": "text_light", "value": "#CCCCCC" },
+    { "name": "text_white", "value": "#FFFFFF" },
+    { "name": "bg_page", "value": "#F5F5F5" },
+    { "name": "bg_card", "value": "#FFFFFF" },
+    { "name": "bg_input", "value": "#F5F5F5" },
+    { "name": "bg_address", "value": "#FFF8E1" },
+    { "name": "bg_success", "value": "#4CAF50" },
+    { "name": "bg_overlay", "value": "#80000000" },
+    { "name": "border_light", "value": "#F0F0F0" },
+    { "name": "shadow_light", "value": "#10000000" },
+    { "name": "shadow_medium", "value": "#20000000" },
+    { "name": "danger", "value": "#FF4444" },
+    { "name": "category_bg", "value": "#F0F0F0" },
+    { "name": "profile_bg", "value": "#FFF8E1" }
+  ]
+}

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>支付中心 - 开心购物</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; }
+.header { background: #FF5722; color: #fff; padding: 14px 16px; text-align: center; font-size: 16px; font-weight: 600; }
+.card { background: #fff; margin: 12px; border-radius: 12px; padding: 20px; }
+.amount { text-align: center; padding: 20px 0; }
+.amount .label { font-size: 13px; color: #999; }
+.amount .price { font-size: 36px; color: #FF5722; font-weight: Bold; margin-top: 8px; }
+.amount .price small { font-size: 20px; }
+.order-info { font-size: 13px; color: #999; text-align: center; margin-top: 4px; }
+.pay-methods { margin-top: 12px; }
+.pay-method { display: flex; align-items: center; padding: 14px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+.pay-method.selected { border-color: #FF5722; background: #FFF8F5; }
+.pay-method .icon { width: 28px; height: 28px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; font-weight: bold; }
+.pay-method .icon-alipay { background: #1677FF; }
+.pay-method .icon-wechat { background: #07C160; }
+.pay-method .name { font-size: 15px; font-weight: 500; flex: 1; }
+.pay-method .check { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; }
+.pay-method.selected .check { border-color: #FF5722; background: #FF5722; color: #fff; font-size: 12px; }
+.pwd-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); z-index: 10; align-items: center; justify-content: center; }
+.pwd-overlay.show { display: flex; }
+.pwd-panel { background: #fff; width: 82%; max-width: 320px; border-radius: 16px; padding: 28px 24px 24px; text-align: center; }
+.pwd-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 6px; }
+.pwd-amount { font-size: 22px; color: #FF5722; font-weight: Bold; margin-bottom: 18px; }
+    .pwd-dots { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; position: relative; }
+    .pwd-dot { width: 42px; height: 48px; border-radius: 10px; border: 1.5px solid #ddd; background: #f5f5f5; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s; }
+    .pwd-dot.filled { border-color: #FF5722; }
+    .pwd-dot .circle { width: 12px; height: 12px; border-radius: 50%; background: #333; display: none; }
+    .pwd-dot.filled .circle { display: block; }
+    .pwd-dot.active { border-color: #FF5722; }
+.btn-pay { display: block; width: calc(100% - 24px); margin: 16px 12px; padding: 14px; background: #FF5722; color: #fff; border: none; border-radius: 24px; font-size: 17px; font-weight: 600; cursor: pointer; }
+.btn-pay:disabled { background: #ccc; cursor: not-allowed; }
+.tip { text-align: center; font-size: 12px; color: #999; margin-top: 8px; padding: 0 24px; line-height: 18px; }
+.success { text-align: center; padding: 40px 20px; }
+.success .icon-circle { width: 64px; height: 64px; border-radius: 50%; background: #4CAF50; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.success .icon-circle .checkmark { color: #fff; font-size: 32px; font-weight: bold; }
+.success h2 { font-size: 20px; color: #333; margin-bottom: 8px; }
+.success p { font-size: 14px; color: #999; margin-bottom: 24px; }
+.success .btn { display: inline-block; padding: 10px 40px; background: #FF5722; color: #fff; border-radius: 24px; text-decoration: none; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="header">[支付中心]</div>
+
+<!-- Main payment view -->
+<div id="app">
+  <div class="card">
+    <div class="amount">
+      <div class="label">支付金额</div>
+      <div class="price"><small>¥</small> <span id="amount">0.00</span></div>
+      <div class="order-info">订单号: <span id="orderNumber"></span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="pay-methods">
+      <div class="pay-method selected" data-method="alipay" onclick="selectMethod('alipay')">
+        <span class="icon icon-alipay">支</span>
+        <span class="name">支付宝沙箱支付</span>
+        <span class="check">&#10003;</span>
+      </div>
+      <div class="pay-method" data-method="wechat" onclick="selectMethod('wechat')">
+        <span class="icon icon-wechat">微</span>
+        <span class="name">微信支付（模拟）</span>
+        <span class="check">&#10003;</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-pay" id="payBtn" onclick="showPwd()">确认支付 ¥<span id="btnAmount">0.00</span></button>
+  <div class="tip">[沙箱环境] 测试支付，不会产生实际扣款</div>
+  <div id="errorMsg" style="display:none;margin:0 12px 12px;padding:12px 16px;background:#FFF0F0;color:#D32F2F;border-radius:8px;font-size:13px;text-align:center;"></div>
+</div>
+
+<!-- Password overlay -->
+<div class="pwd-overlay" id="pwdOverlay">
+  <div class="pwd-panel">
+    <div class="pwd-title">请输入支付密码</div>
+    <div class="pwd-amount">¥<span id="pwdAmount">0.00</span></div>
+    <div class="pwd-dots" id="pwdDots">
+      <div class="pwd-dot active" data-i="0"><div class="circle"></div></div>
+      <div class="pwd-dot" data-i="1"><div class="circle"></div></div>
+      <div class="pwd-dot" data-i="2"><div class="circle"></div></div>
+      <div class="pwd-dot" data-i="3"><div class="circle"></div></div>
+      <div class="pwd-dot" data-i="4"><div class="circle"></div></div>
+      <div class="pwd-dot" data-i="5"><div class="circle"></div></div>
+    </div>
+    <input type="tel" id="pwdInput" maxlength="6" autocomplete="off" inputmode="numeric" pattern="[0-9]*" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;z-index:1;caret-color:transparent;" />
+  </div>
+</div>
+
+<!-- Success view -->
+<div id="success" style="display:none">
+  <div class="card">
+    <div class="success">
+      <div class="icon-circle"><span class="checkmark">&#10003;</span></div>
+      <h2>支付成功！</h2>
+      <p>订单 <span id="successOrder" style="font-weight:500"></span> 已完成支付</p>
+      <a class="btn" onclick="closePage()">返回</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const orderNumber = params.get('orderNumber') || '';
+const amount = params.get('amount') || '0';
+const username = params.get('username') || '';
+const token = params.get('token') || '';
+
+let selectedMethod = 'alipay';
+
+document.getElementById('amount').textContent = parseFloat(amount).toFixed(2);
+document.getElementById('orderNumber').textContent = orderNumber;
+document.getElementById('btnAmount').textContent = parseFloat(amount).toFixed(2);
+document.getElementById('pwdAmount').textContent = parseFloat(amount).toFixed(2);
+
+function showError(msg) {
+  var el = document.getElementById('errorMsg');
+  if (el) {
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+}
+
+function selectMethod(method) {
+  selectedMethod = method;
+  document.querySelectorAll('.pay-method').forEach(el => {
+    el.classList.toggle('selected', el.dataset.method === method);
+  });
+}
+
+function showPwd() {
+  document.getElementById('pwdOverlay').classList.add('show');
+  document.getElementById('pwdInput').value = '';
+  updateDots();
+  setTimeout(() => document.getElementById('pwdInput').focus(), 100);
+}
+
+function updateDots() {
+  const val = document.getElementById('pwdInput').value.replace(/\D/g, '');
+  document.getElementById('pwdInput').value = val;
+  const dots = document.querySelectorAll('.pwd-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('filled', i < val.length);
+    dot.classList.toggle('active', i === val.length);
+  });
+  if (val.length === 6) {
+    doPay();
+  }
+}
+
+document.getElementById('pwdInput').addEventListener('input', updateDots);
+document.getElementById('pwdInput').addEventListener('focus', updateDots);
+document.getElementById('pwdInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Backspace' || e.key === 'Delete') {
+    e.stopPropagation();
+  }
+});
+
+document.getElementById('pwdDots').addEventListener('click', function() {
+  document.getElementById('pwdInput').focus();
+});
+
+document.getElementById('pwdOverlay').addEventListener('click', function(e) {
+  if (e.target === this) {
+    this.classList.remove('show');
+  }
+});
+
+async function doPay() {
+  const pwd = document.getElementById('pwdInput').value;
+  document.getElementById('pwdOverlay').classList.remove('show');
+  document.getElementById('payBtn').disabled = true;
+  document.getElementById('payBtn').textContent = '处理中...';
+
+  const payMethod = selectedMethod === 'alipay' ? '支付宝' : '微信支付';
+
+  try {
+    const res = await fetch('/api/payment/callback/' + orderNumber, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payMethod, token, paymentPassword: pwd })
+    });
+    const data = await res.json();
+    if (data.status === '待发货') {
+      document.getElementById('successOrder').textContent = orderNumber;
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('success').style.display = 'block';
+      document.getElementById('payBtn').disabled = false;
+      document.getElementById('payBtn').textContent = '支付成功';
+    } else {
+      showError('支付失败：' + (data.error || '未知错误'));
+      document.getElementById('payBtn').disabled = false;
+      document.getElementById('payBtn').textContent = '重新支付';
+    }
+  } catch (err) {
+    showError('支付请求失败，请重试');
+    document.getElementById('payBtn').disabled = false;
+    document.getElementById('payBtn').textContent = '重新支付';
+  }
+}
+
+function closePage() {
+  try { window.close(); } catch(e) {}
+  window.location.href = 'happybuy://payment/success?orderNumber=' + orderNumber;
+}
+</script>
+</body>
+</html>

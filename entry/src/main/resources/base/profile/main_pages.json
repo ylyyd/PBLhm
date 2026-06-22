@@ -1,0 +1,28 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/Register",
+    "pages/MainTab",
+    "pages/Checkout",
+    "pages/OrderSuccess",
+    "pages/EditProfile",
+    "pages/OrderHistory",
+    "pages/ProductDetail",
+    "pages/AddressManagement",
+    "pages/Favorites",
+    "pages/OrderDetail",
+    "pages/MyReviews",
+    "pages/Settings",
+    "pages/PersonalInfo",
+    "pages/SearchPage",
+    "pages/WebViewPage",
+    "pages/MessageCenter",
+    "pages/AdminDashboard",
+    "pages/AdminProducts",
+    "pages/AdminOrders",
+    "pages/AdminCategories",
+    "pages/BrowseHistory",
+    "pages/AfterSales",
+    "pages/AfterSalesList"
+  ]
+}
