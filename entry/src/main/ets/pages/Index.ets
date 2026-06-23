@@ -12,6 +12,7 @@ struct Index {
   @State password: string = ''
   @State isLoggingIn: boolean = false
 
+
   aboutToAppear(): void {
     if (sessionViewModel.isLoggedIn()) {
       AppRouter.goToHome()
